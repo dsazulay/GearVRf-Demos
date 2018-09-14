@@ -16,6 +16,7 @@
 package org.gearvrf.simplesample;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import org.gearvrf.GVRActivity;
 import org.gearvrf.GVRAndroidResource;
@@ -25,6 +26,11 @@ import org.gearvrf.GVRMain;
 import org.gearvrf.GVRScene;
 import org.gearvrf.GVRSceneObject;
 import org.gearvrf.GVRTexture;
+import org.gearvrf.animation.GVRAnimation;
+import org.gearvrf.animation.GVRAnimator;
+import org.gearvrf.animation.GVRRepeatMode;
+
+import java.io.IOException;
 
 public class SampleActivity extends GVRActivity {
 
@@ -38,19 +44,23 @@ public class SampleActivity extends GVRActivity {
         @Override
         public void onInit(GVRContext gvrContext) {
             GVRScene scene = gvrContext.getMainScene();
-            scene.setBackgroundColor(1, 1, 1, 1);
+            GVRSceneObject sceneObject = null;
 
-            GVRTexture texture = gvrContext.getAssetLoader().loadTexture(new GVRAndroidResource(gvrContext, R.drawable.gearvr_logo));
+            try {
+                sceneObject = gvrContext.getAssetLoader().loadModel("PET_ANIMATIONS_03.fbx");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            // create a scene object (this constructor creates a rectangular scene
-            // object that uses the standard texture shader
-            GVRSceneObject sceneObject = new GVRSceneObject(gvrContext, 4.0f, 2.0f, texture);
-
-            // set the scene object position
-            sceneObject.getTransform().setPosition(0.0f, 0.0f, -3.0f);
-
-            // add the scene object to the scene graph
+            sceneObject.getTransform().setScale(0.01f, 0.01f, 0.01f);
+            sceneObject.getTransform().setPosition(0f, -3f, -5f);
             scene.addSceneObject(sceneObject);
+
+            GVRAnimator animator = (GVRAnimator) sceneObject.getComponent(GVRAnimator.getComponentType());
+            GVRAnimation animation = animator.getAnimation(0);
+            animation.setRepeatMode(GVRRepeatMode.REPEATED);
+            animation.setRepeatCount(-1);
+            gvrContext.getAnimationEngine().start(animation);
         }
     }
 }
